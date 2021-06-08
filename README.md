@@ -1,5 +1,5 @@
 #### 介绍
-自定义推理代码开发模版
+推理代码开发模版
 
 #### 框架说明
 
@@ -7,37 +7,75 @@
 
 ```shell script
 template-python|
-                 --|src -->代码:预置推理脚本,自定义脚本
-                 --|conf -->配置文件:可编辑修改
-                 --|requirements.txt
+                 --|src 代码:预置推理脚本,自定义脚本
+                 --|requirements.txt python依赖配置  
+                 --|model 模型文件目录
                  --|README.md 模版说明
-                 --|model 模型路径
+                 
 ```
 
 >文件说明  
 
-src/base_service.py：抽象基类，定义基础方法。详见源码
+```text
 
+  src/inference.py：推理方法实现，详见源码，注意inference.py脚本名称不可修改
+  requirements.txt：声明项目python依赖
+  model/  默认模型文件目录
+```
+> inference.py开发
+```python
+#引入fastml_engine模块，并实现BaseService
+from fastml_engine.modelservice import BaseService
 
-src/inference.py：推理实现类，详见源码
+#可自行定义<Inference>类名称，作为推理服务接口默认名称
+class Inference(BaseService):
+    def load_context(self):
+        """
+        在此加载模型、参数、数据等资源，服务启动会被默认初始化
+        """
+        print('load resource')
+    def infer(self, input_data):
+        """
+        推理方法，自定义方法实现逻辑
+        """
+        output_data = input_data
+        return output_data
 
+```
+```python
+from fastml_engine.modelservice import BaseService
 
-conf/endpoint.json：接口配置，与推理脚本对应，支持多个推理脚本，提供多个服务接口  
-```json
-[
-  {
-    "script_name": "inference",
-    "subclass_name": "Inference"
-  }
-]
+#允许定义多个实现类，将被自动注册为推理接口,
+#接口名称为/algo/inference1,/algo/inference2
+class Inference1(BaseService):
+    def load_context(self):
+        """
+        在此加载模型、参数、数据等资源，服务启动会被默认初始化
+        """
+        print('load resource')
+    def infer(self, input_data):
+        """
+        推理方法，自定义方法实现逻辑
+        """
+        output_data = input_data
+        return output_data
+
+class Inference2(BaseService):
+    def load_context(self):
+        """
+        在此加载模型、参数、数据等资源，服务启动会被默认初始化
+        """
+        print('load resource')
+    def infer(self, input_data):
+        """
+        推理方法，自定义方法实现逻辑
+        """
+        output_data = input_data
+        return output_data
+
 ```
 
-/requirements.txt：声明Python依赖配置，示例如下  
-```properties
-numpy
-tensorflow==1.13.1
-```
 
 #### 特性
-1.  结合fastml-engine引擎，无需开发Web部分代码，只需关注推理函数代码  
+1.  结合fastml-engine引擎，无需开发Web部分代码，只需关注推理函数代码
 2.  将通用流程标准化，可变部分配置化，灵活适用多种场景  
